@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    min-height: 100%;
+  }
+  body {
+    @apply bg-parchment-50 text-ink-900 font-sans antialiased;
+  }
+  h1, h2, h3 {
+    @apply font-display text-ink-900;
+  }
+  a {
+    @apply text-emerald_ie-700 underline-offset-2 hover:underline;
+  }
+}
+
+@layer components {
+  .container-app {
+    @apply mx-auto max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+  .card {
+    @apply bg-white rounded-2xl border border-parchment-200 shadow-card;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition;
+  }
+  .btn-primary {
+    @apply btn bg-emerald_ie-700 text-white hover:bg-emerald_ie-800 no-underline;
+  }
+  .btn-ghost {
+    @apply btn border border-parchment-300 text-ink-900 hover:bg-parchment-100 no-underline;
+  }
+  .pill {
+    @apply inline-flex items-center gap-1.5 rounded-full bg-emerald_ie-50 px-2.5 py-1 text-xs font-medium text-emerald_ie-800;
+  }
+}
