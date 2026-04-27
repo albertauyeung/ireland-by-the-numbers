@@ -1,93 +1,118 @@
+import { useLocale } from '../i18n/LocaleContext';
+
 export default function About() {
+  const { t, m } = useLocale();
+  const leadParts = t('about.lead').split('{em}');
   return (
     <div className="container-app py-10 sm:py-14 max-w-3xl space-y-6">
       <header>
         <h1 className="font-display text-3xl sm:text-4xl text-ink-900">
-          About Réalachas
+          {t('about.title')}
         </h1>
         <p className="mt-2 text-ink-700/80">
-          “Réalachas” is Irish for <em>realism</em>. The app is a small
-          experiment in turning Irish open data into something you’d actually
-          read on the bus.
+          {leadParts[0]}
+          <em>{t('about.leadEm')}</em>
+          {leadParts[1]}
         </p>
       </header>
 
       <section className="space-y-3">
-        <h2 className="font-display text-2xl">Who it’s for</h2>
+        <h2 className="font-display text-2xl">{t('about.whoTitle')}</h2>
         <ul className="list-disc pl-5 space-y-1 text-ink-700/90">
-          <li>Anyone curious about modern Ireland — residents, diaspora, students.</li>
-          <li>Secondary-school CSPE and Politics &amp; Society teachers and pupils.</li>
-          <li>Journalists, policy people, data folk who want a quick CSO entry point.</li>
+          {m.about.who.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
         </ul>
       </section>
 
       <section className="space-y-3">
-        <h2 className="font-display text-2xl">Where the numbers come from</h2>
+        <h2 className="font-display text-2xl">{t('about.sourcesTitle')}</h2>
         <ul className="space-y-2 text-ink-700/90">
           <li>
-            <strong>CSO PxStat</strong> —{' '}
-            <a href="https://data.cso.ie" target="_blank" rel="noreferrer">
-              data.cso.ie
-            </a>
-            . 5,000+ tables in the JSON-stat 2.0 format, free, no auth.
+            {fillTokens(t('about.sourceCso'), {
+              name: <strong>CSO PxStat</strong>,
+              site: (
+                <a href="https://data.cso.ie" target="_blank" rel="noreferrer">
+                  data.cso.ie
+                </a>
+              ),
+            })}
           </li>
           <li>
-            <strong>Census 2022</strong> small-area data —{' '}
-            <a
-              href="https://www.cso.ie/en/statistics/population/census2022/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              cso.ie
-            </a>
-            .
+            {fillTokens(t('about.sourceCensus'), {
+              name: <strong>Census 2022</strong>,
+              site: (
+                <a
+                  href="https://www.cso.ie/en/statistics/population/census2022/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  cso.ie
+                </a>
+              ),
+            })}
           </li>
           <li>
-            <strong>Met Éireann Open Data</strong> —{' '}
-            <a
-              href="https://www.met.ie/about-us/specialised-services/open-data"
-              target="_blank"
-              rel="noreferrer"
-            >
-              met.ie
-            </a>
-            . Climate normals and forecast/observation APIs.
+            {fillTokens(t('about.sourceMet'), {
+              name: <strong>Met Éireann Open Data</strong>,
+              site: (
+                <a
+                  href="https://www.met.ie/about-us/specialised-services/open-data"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  met.ie
+                </a>
+              ),
+            })}
           </li>
           <li>
-            <strong>SEAI</strong> energy statistics, <strong>EPA</strong>{' '}
-            environmental indicators, <strong>Pobal</strong> HP Deprivation
-            Index.
+            {fillTokens(t('about.sourceOther'), {
+              seai: <strong>SEAI</strong>,
+              epa: <strong>EPA</strong>,
+              pobal: <strong>Pobal</strong>,
+            })}
           </li>
         </ul>
       </section>
 
       <section className="space-y-3">
-        <h2 className="font-display text-2xl">Licence and attribution</h2>
+        <h2 className="font-display text-2xl">{t('about.licenceTitle')}</h2>
         <p className="text-ink-700/90">
-          All datasets used here are published under{' '}
-          <a
-            href="https://creativecommons.org/licenses/by/4.0/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            CC BY 4.0
-          </a>{' '}
-          or the Irish PSI Open Government Licence. Attribution is shown
-          beside every chart and shareable card. Réalachas is an independent
-          project and is not affiliated with the CSO or any state body.
+          {fillTokens(t('about.licenceBody'), {
+            ccby: (
+              <a
+                href="https://creativecommons.org/licenses/by/4.0/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                CC BY 4.0
+              </a>
+            ),
+          })}
         </p>
       </section>
 
       <section className="space-y-3">
-        <h2 className="font-display text-2xl">A note on accuracy</h2>
-        <p className="text-ink-700/90">
-          Where possible, charts are pulled live from the CSO PxStat API so the
-          numbers are always the latest published figures. Some headline facts
-          on the home page are written by hand from CSO releases — they may
-          lag by a release cycle. If you spot something wrong, please open an
-          issue.
-        </p>
+        <h2 className="font-display text-2xl">{t('about.accuracyTitle')}</h2>
+        <p className="text-ink-700/90">{t('about.accuracyBody')}</p>
       </section>
     </div>
   );
+}
+
+// Splits a template like "Foo {bar} baz" into [text, node, text, ...] so we
+// can interleave React elements with localised prose.
+function fillTokens(template: string, tokens: Record<string, React.ReactNode>) {
+  const parts: React.ReactNode[] = [];
+  const re = /\{(\w+)\}/g;
+  let last = 0;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(template)) !== null) {
+    if (match.index > last) parts.push(template.slice(last, match.index));
+    parts.push(tokens[match[1]] ?? `{${match[1]}}`);
+    last = match.index + match[0].length;
+  }
+  if (last < template.length) parts.push(template.slice(last));
+  return parts.map((part, i) => <span key={i}>{part}</span>);
 }

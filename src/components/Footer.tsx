@@ -1,20 +1,19 @@
+import { useLocale } from '../i18n/LocaleContext';
+
 export default function Footer() {
+  const { t } = useLocale();
   return (
     <footer className="border-t border-parchment-200 bg-parchment-100">
       <div className="container-app py-8 grid gap-6 md:grid-cols-3 text-sm text-ink-700/80">
         <div>
           <div className="font-display text-base text-ink-900 mb-2">
-            About this app
+            {t('footer.aboutTitle')}
           </div>
-          <p>
-            Réalachas surfaces stories from Irish open data. All figures come
-            from the CSO, Met Éireann, EPA, SEAI and other official sources —
-            attribution is shown beside every chart.
-          </p>
+          <p>{t('footer.aboutBody')}</p>
         </div>
         <div>
           <div className="font-display text-base text-ink-900 mb-2">
-            Data sources
+            {t('footer.sourcesTitle')}
           </div>
           <ul className="space-y-1">
             <li>
@@ -44,17 +43,13 @@ export default function Footer() {
         </div>
         <div>
           <div className="font-display text-base text-ink-900 mb-2">
-            Licence
+            {t('footer.licenceTitle')}
           </div>
-          <p>
-            CSO data reused under the Creative Commons Attribution 4.0
-            International licence (CC BY 4.0). © Government of Ireland. This
-            app is not affiliated with the CSO or any state body.
-          </p>
+          <p>{t('footer.licenceBody')}</p>
         </div>
       </div>
       <div className="container-app pb-6 text-xs text-ink-700/60">
-        Built with React + Vite. Charts: Recharts. © {new Date().getFullYear()}.
+        {t('footer.builtWith').replace('{year}', String(new Date().getFullYear()))}
       </div>
     </footer>
   );

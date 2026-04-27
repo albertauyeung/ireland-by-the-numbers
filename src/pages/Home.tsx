@@ -5,9 +5,12 @@ import ShareButton from '../components/ShareButton';
 import StoryCard from '../components/StoryCard';
 import { todaysFact } from '../data/facts';
 import { stories } from '../data/stories';
+import { useLocale } from '../i18n/LocaleContext';
+import { localizeFact } from '../i18n/facts';
 
 export default function Home() {
-  const fact = todaysFact();
+  const { t, locale } = useLocale();
+  const fact = localizeFact(todaysFact(), locale);
   const cardRef = useRef<HTMLDivElement>(null);
   const featured = stories.slice(0, 3);
 
@@ -16,22 +19,19 @@ export default function Home() {
       {/* Hero */}
       <section className="grid gap-8 md:grid-cols-[1.1fr_1fr] items-center">
         <div>
-          <span className="pill mb-4">Open data · Census 2022 · Met Éireann · CSO</span>
+          <span className="pill mb-4">{t('home.pill')}</span>
           <h1 className="font-display text-4xl sm:text-5xl leading-tight text-ink-900">
-            Ireland, told in numbers you’ll actually remember.
+            {t('home.headline')}
           </h1>
           <p className="mt-4 text-lg text-ink-700/90 max-w-prose">
-            Réalachas turns Ireland’s thousands of statistical tables into a
-            daily fact, a handful of stories, and a chart explorer anyone can
-            use. No PxStat headaches, no SQL — just the country, by the
-            numbers.
+            {t('home.intro')}
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link to="/stories" className="btn-primary">
-              Explore stories
+              {t('home.cta_stories')}
             </Link>
             <Link to="/explorer" className="btn-ghost">
-              Build your own chart
+              {t('home.cta_explorer')}
             </Link>
           </div>
         </div>
@@ -43,7 +43,7 @@ export default function Home() {
                 to={`/explorer?table=${fact.table}`}
                 className="btn-ghost"
               >
-                See the data →
+                {t('home.seeData')}
               </Link>
             )}
             <ShareButton
@@ -59,17 +59,17 @@ export default function Home() {
         <div className="flex items-end justify-between mb-4">
           <div>
             <h2 className="font-display text-2xl text-ink-900">
-              Stories worth your 5 minutes
+              {t('home.sectionStoriesTitle')}
             </h2>
             <p className="text-sm text-ink-700/70">
-              Curated explorations using Census 2022 and CSO open data.
+              {t('home.sectionStoriesSub')}
             </p>
           </div>
           <Link
             to="/stories"
             className="text-sm text-emerald_ie-700 hover:underline"
           >
-            All stories →
+            {t('home.allStories')}
           </Link>
         </div>
         <div className="grid gap-5 md:grid-cols-3">
@@ -83,18 +83,18 @@ export default function Home() {
       <section className="grid gap-5 md:grid-cols-3">
         <Pitch
           icon="📚"
-          title="Built for learners"
-          body="Designed for CSPE, Politics & Society, and anyone curious about modern Ireland. Every chart is sourced — show your work in class or a journalism brief."
+          title={t('home.pitchLearnersTitle')}
+          body={t('home.pitchLearnersBody')}
         />
         <Pitch
           icon="🔓"
-          title="Pure open data"
-          body="Powered by the CSO PxStat JSON-stat API, Met Éireann Open Data, EPA and SEAI. Reused under CC BY 4.0 with full attribution."
+          title={t('home.pitchOpenTitle')}
+          body={t('home.pitchOpenBody')}
         />
         <Pitch
           icon="📈"
-          title="Make your own chart"
-          body="Pick a table, a category, a county. The explorer simplifies CSO PxStat queries — no JSON wrangling required."
+          title={t('home.pitchExplorerTitle')}
+          body={t('home.pitchExplorerBody')}
         />
       </section>
     </div>

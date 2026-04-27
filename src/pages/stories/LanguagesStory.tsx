@@ -1,11 +1,9 @@
 import { useRef } from 'react';
 import StatChart from '../../components/StatChart';
 import ShareButton from '../../components/ShareButton';
+import { useLocale } from '../../i18n/LocaleContext';
 
-// Census 2022 — top home languages other than English & Irish.
-// Source: CSO Census 2022 Profile 4 (The Living Language) and Profile 5
-// (Diversity, Migration, Ethnicity, Travellers and Religion).
-const data = [
+const baseData = [
   { language: 'Polish', speakers: 124000 },
   { language: 'Romanian', speakers: 50000 },
   { language: 'Lithuanian', speakers: 35000 },
@@ -15,38 +13,40 @@ const data = [
   { language: 'French', speakers: 28000 },
   { language: 'Arabic', speakers: 23000 },
   { language: 'Hindi', speakers: 21000 },
-];
+] as const;
 
 export default function LanguagesStory() {
   const chartRef = useRef<HTMLDivElement>(null);
+  const { t, m } = useLocale();
+  const langLabels = m.languagesStory.languages as Record<string, string>;
+  const data = baseData.map((d) => ({
+    language: langLabels[d.language] ?? d.language,
+    speakers: d.speakers,
+  }));
   return (
     <article className="space-y-5 text-ink-700/90 leading-relaxed">
-      <p>
-        Ireland is officially bilingual — Irish is the first official language
-        of the State. But everyday life happens in many more tongues. Census
-        2022 asked respondents about <em>main languages spoken at home</em>{' '}
-        other than English and Irish, and the answers map a country far more
-        plural than the national stereotype suggests.
-      </p>
+      <p>{t('languagesStory.p1')}</p>
 
       <div ref={chartRef} className="card p-5 space-y-3">
         <div>
           <div className="text-sm uppercase tracking-wider text-emerald_ie-800/80">
-            Top non-English / non-Irish home languages
+            {t('languagesStory.chartCap')}
           </div>
           <div className="font-display text-xl text-ink-900">
-            Republic of Ireland · Census 2022
+            {t('languagesStory.chartTitle')}
           </div>
         </div>
         <StatChart
           data={data}
           xKey="language"
-          series={[{ key: 'speakers', label: 'Speakers at home' }]}
+          series={[
+            { key: 'speakers', label: t('languagesStory.seriesSpeakers') },
+          ]}
           type="bar"
           height={320}
         />
         <div className="text-[11px] text-ink-700/60 font-mono">
-          Source: CSO · Census 2022 Profile 4 · CC BY 4.0
+          {t('explorer.source')}: CSO · Census 2022 Profile 4 · CC BY 4.0
         </div>
       </div>
 
@@ -54,43 +54,29 @@ export default function LanguagesStory() {
         <ShareButton
           targetRef={chartRef}
           filename="realachas-languages.png"
-          label="Share this chart"
+          label={t('share.shareChart')}
         />
       </div>
 
       <h3 className="font-display text-2xl text-ink-900 pt-2">
-        Three things to know
+        {t('languagesStory.h3Three')}
       </h3>
       <ul className="list-disc pl-5 space-y-2">
         <li>
-          <strong>Polish is third.</strong> After English and Irish, Polish is
-          the most-spoken home language — about 124,000 speakers, slightly
-          fewer than the ~135,000 in 2011 but still well ahead of the next
-          language.
+          <strong>{t('languagesStory.li1Title')}</strong> {t('languagesStory.li1Body')}
         </li>
         <li>
-          <strong>Irish is widely known, narrowly used.</strong> 1.87 million
-          people said they could speak Irish, but only 71,968 said they spoke
-          it daily and just 20,261 of those did so outside the school system.
+          <strong>{t('languagesStory.li2Title')}</strong> {t('languagesStory.li2Body')}
         </li>
         <li>
-          <strong>One in five was born abroad.</strong> 20% of usual residents
-          were born outside the State — up from 17% in 2016. The most common
-          countries of birth are the UK, Poland, India and Romania.
+          <strong>{t('languagesStory.li3Title')}</strong> {t('languagesStory.li3Body')}
         </li>
       </ul>
 
       <h3 className="font-display text-2xl text-ink-900 pt-2">
-        What this looks like on the street
+        {t('languagesStory.h3Street')}
       </h3>
-      <p>
-        In Dublin 8, Polish, Brazilian Portuguese and Spanish are routinely
-        heard alongside English. In west Galway and parts of Donegal you’ll
-        hear daily Irish. In Limerick, Mayo, Cork and Dublin North-West there
-        are growing communities speaking Hindi, Malayalam and Arabic at home.
-        Census 2022 captures this snapshot — and it has shifted noticeably
-        every five years.
-      </p>
+      <p>{t('languagesStory.p2')}</p>
     </article>
   );
 }
