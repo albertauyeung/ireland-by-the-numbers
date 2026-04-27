@@ -6,6 +6,7 @@ import { Loading, ErrorBox } from '../components/Loading';
 import { useTable } from '../lib/useTable';
 import { dimCodes, dimLabel, slice, type JsonStat } from '../lib/pxstat';
 import { explorerTables } from '../data/explorerTables';
+import { useLocale } from '../i18n/LocaleContext';
 
 export default function Explorer() {
   const [params, setParams] = useSearchParams();
@@ -13,56 +14,56 @@ export default function Explorer() {
   const code = params.get('table') ?? 'FY002';
   const state = useTable(code);
   const cardRef = useRef<HTMLDivElement>(null);
+  const { t, m } = useLocale();
 
   const setCode = (next: string) => {
     setParams({ table: next });
   };
 
+  const localTable = (c: string) =>
+    (m.explorerTables as Record<string, { title: string; description: string }>)[c];
+
   return (
     <div className="container-app py-10 sm:py-14 space-y-8">
       <header className="max-w-3xl">
         <h1 className="font-display text-3xl sm:text-4xl text-ink-900">
-          Chart explorer
+          {t('explorer.title')}
         </h1>
-        <p className="mt-2 text-ink-700/80">
-          Pick a CSO PxStat table, slice by a category, and see the chart.
-          Numbers are fetched live from{' '}
-          <a href="https://data.cso.ie" target="_blank" rel="noreferrer">
-            data.cso.ie
-          </a>
-          .
-        </p>
+        <p className="mt-2 text-ink-700/80">{t('explorer.intro')}</p>
       </header>
 
       <section className="grid gap-3 md:grid-cols-3">
-        {explorerTables.map((t) => (
-          <button
-            key={t.code}
-            onClick={() => setCode(t.code)}
-            className={`card p-5 text-left transition hover:-translate-y-0.5 ${
-              t.code === code
-                ? 'ring-2 ring-emerald_ie-700 bg-emerald_ie-50'
-                : ''
-            }`}
-          >
-            <div className="font-mono text-[11px] text-ink-700/60">
-              {t.code}
-            </div>
-            <div className="font-display text-base text-ink-900 mt-1 leading-snug">
-              {t.title}
-            </div>
-            <p className="text-sm text-ink-700/70 mt-1.5">{t.description}</p>
-          </button>
-        ))}
+        {explorerTables.map((tbl) => {
+          const local = localTable(tbl.code);
+          return (
+            <button
+              key={tbl.code}
+              onClick={() => setCode(tbl.code)}
+              className={`card p-5 text-left transition hover:-translate-y-0.5 ${
+                tbl.code === code
+                  ? 'ring-2 ring-emerald_ie-700 bg-emerald_ie-50'
+                  : ''
+              }`}
+            >
+              <div className="font-mono text-[11px] text-ink-700/60">
+                {tbl.code}
+              </div>
+              <div className="font-display text-base text-ink-900 mt-1 leading-snug">
+                {local?.title ?? tbl.title}
+              </div>
+              <p className="text-sm text-ink-700/70 mt-1.5">
+                {local?.description ?? tbl.description}
+              </p>
+            </button>
+          );
+        })}
       </section>
 
       <section className="card p-4 flex flex-wrap items-center gap-3">
-        <label className="text-sm text-ink-700/80">
-          Or load any CSO PxStat table by code
-        </label>
+        <label className="text-sm text-ink-700/80">{t('explorer.customLabel')}</label>
         <input
           type="text"
-          placeholder="e.g. FP002"
+          placeholder={t('explorer.customPlaceholder')}
           value={customCode}
           onChange={(e) => setCustomCode(e.target.value.toUpperCase())}
           className="rounded-md border border-parchment-300 px-3 py-1.5 text-sm font-mono w-32"
@@ -74,7 +75,7 @@ export default function Explorer() {
           className="btn-primary"
           onClick={() => customCode.trim() && setCode(customCode.trim())}
         >
-          Load
+          {t('explorer.load')}
         </button>
         <a
           href="https://data.cso.ie"
@@ -82,13 +83,13 @@ export default function Explorer() {
           rel="noreferrer"
           className="text-sm ml-auto"
         >
-          Browse all CSO tables →
+          {t('explorer.browseAll')}
         </a>
       </section>
 
       <section ref={cardRef} className="card p-6 space-y-5">
         {state.status === 'loading' && (
-          <Loading label={`Fetching ${code} from CSO PxStat…`} />
+          <Loading label={t('loading.fetching').replace('{code}', code)} />
         )}
         {state.status === 'error' && <ErrorBox error={state.error} />}
         {state.status === 'ready' && (
@@ -101,7 +102,7 @@ export default function Explorer() {
           <ShareButton
             targetRef={cardRef}
             filename={`realachas-${code}.png`}
-            label="Save chart as image"
+            label={t('explorer.saveChart')}
           />
         </div>
       )}
@@ -119,12 +120,11 @@ function isTotalCode(label: string): boolean {
 }
 
 function ExplorerView({ ds, code }: { ds: JsonStat; code: string }) {
+  const { t } = useLocale();
   const dimIds = ds.id;
   const timeDim = dimIds.find(isTimeDim);
-  // Non-time dims to filter on:
   const filterDims = dimIds.filter((d) => d !== timeDim);
 
-  // Default each filter dim to the first 'total'-looking category, else first.
   const defaults = useMemo(() => {
     const out: Record<string, string> = {};
     for (const d of filterDims) {
@@ -161,7 +161,7 @@ function ExplorerView({ ds, code }: { ds: JsonStat; code: string }) {
       <div className="flex flex-wrap items-start gap-x-6 gap-y-2 justify-between">
         <div>
           <div className="font-mono text-[11px] text-ink-700/60">
-            CSO · {code} · updated {updated}
+            {t('explorer.cso')} · {code} · {t('explorer.updated')} {updated}
           </div>
           <div className="font-display text-xl text-ink-900 mt-1 max-w-prose">
             {ds.label}
@@ -190,14 +190,12 @@ function ExplorerView({ ds, code }: { ds: JsonStat; code: string }) {
         />
       ) : (
         <div className="text-sm text-ink-700/70">
-          {timeDim
-            ? 'No data points for the selected combination.'
-            : 'This table has no time dimension yet — explorer support is limited.'}
+          {timeDim ? t('explorer.noPoints') : t('explorer.noTime')}
         </div>
       )}
 
       <div className="text-[11px] font-mono text-ink-700/60">
-        Source: CSO · {code} · CC BY 4.0 ·{' '}
+        {t('explorer.source')}: CSO · {code} · CC BY 4.0 ·{' '}
         <a
           href={`https://data.cso.ie/table/${code}`}
           target="_blank"
@@ -208,7 +206,7 @@ function ExplorerView({ ds, code }: { ds: JsonStat; code: string }) {
       </div>
       {note && (
         <details className="text-xs text-ink-700/70">
-          <summary className="cursor-pointer">Table notes</summary>
+          <summary className="cursor-pointer">{t('explorer.tableNotes')}</summary>
           <p className="mt-2 whitespace-pre-line">{note}</p>
         </details>
       )}

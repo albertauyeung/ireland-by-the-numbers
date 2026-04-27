@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { toPng } from 'html-to-image';
+import { useLocale } from '../i18n/LocaleContext';
 
 type Props = {
   targetRef: React.RefObject<HTMLElement | null>;
@@ -10,8 +11,9 @@ type Props = {
 export default function ShareButton({
   targetRef,
   filename = 'realachas.png',
-  label = 'Save as image',
+  label,
 }: Props) {
+  const { t } = useLocale();
   const [busy, setBusy] = useState(false);
   const onClick = async () => {
     if (!targetRef.current) return;
@@ -49,7 +51,7 @@ export default function ShareButton({
         <polyline points="7 10 12 15 17 10" />
         <line x1="12" y1="15" x2="12" y2="3" />
       </svg>
-      {busy ? 'Rendering…' : label}
+      {busy ? t('share.rendering') : (label ?? t('share.save'))}
     </button>
   );
 }

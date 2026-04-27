@@ -1,10 +1,9 @@
 import { useRef } from 'react';
 import StatChart from '../../components/StatChart';
 import ShareButton from '../../components/ShareButton';
+import { useLocale } from '../../i18n/LocaleContext';
 
-// Cattle vs population by selected county. Sources: CSO Census 2022 (population)
-// and CSO June Livestock Survey (AHA01) — most recent published year.
-const data = [
+const baseData = [
   { county: 'Cavan', people: 81704, cattle: 322000 },
   { county: 'Tipperary', people: 167895, cattle: 670000 },
   { county: 'Cork', people: 584156, cattle: 1280000 },
@@ -14,40 +13,41 @@ const data = [
   { county: 'Mayo', people: 137231, cattle: 305000 },
   { county: 'Roscommon', people: 70259, cattle: 235000 },
   { county: 'Dublin', people: 1458154, cattle: 7500 },
-];
+] as const;
 
 export default function CattleStory() {
   const chartRef = useRef<HTMLDivElement>(null);
+  const { t, m } = useLocale();
+  const labels = m.counties as Record<string, string>;
+  const data = baseData.map((d) => ({
+    ...d,
+    county: labels[d.county] ?? d.county,
+  }));
   return (
     <article className="space-y-5 text-ink-700/90 leading-relaxed">
-      <p>
-        Ireland is famously a country of cattle: roughly 7.3 million of them
-        on a State of 5.15 million people. But the ratio is not uniform.
-        Dublin has fewer than 8,000 cattle; Cavan has nearly four cattle for
-        every person.
-      </p>
+      <p>{t('cattleStory.p1')}</p>
 
       <div ref={chartRef} className="card p-5 space-y-3">
         <div>
           <div className="text-sm uppercase tracking-wider text-emerald_ie-800/80">
-            People vs. cattle, by selected county
+            {t('cattleStory.chartCap')}
           </div>
           <div className="font-display text-xl text-ink-900">
-            Census 2022 + CSO June Livestock Survey (AHA01)
+            {t('cattleStory.chartTitle')}
           </div>
         </div>
         <StatChart
           data={data}
           xKey="county"
           series={[
-            { key: 'people', label: 'People' },
-            { key: 'cattle', label: 'Cattle' },
+            { key: 'people', label: t('cattleStory.seriesPeople') },
+            { key: 'cattle', label: t('cattleStory.seriesCattle') },
           ]}
           type="bar"
           height={340}
         />
         <div className="text-[11px] text-ink-700/60 font-mono">
-          Source: CSO · F1001 + AHA01 · CC BY 4.0
+          {t('explorer.source')}: CSO · F1001 + AHA01 · CC BY 4.0
         </div>
       </div>
 
@@ -55,25 +55,25 @@ export default function CattleStory() {
         <ShareButton
           targetRef={chartRef}
           filename="realachas-cattle.png"
-          label="Share this chart"
+          label={t('share.shareChart')}
         />
       </div>
 
       <h3 className="font-display text-2xl text-ink-900 pt-2">
-        Why this matters
+        {t('cattleStory.h3Why')}
       </h3>
+      <p>{t('cattleStory.p2')}</p>
       <p>
-        Cattle are roughly 60% of Ireland’s agricultural emissions and a sixth
-        of the State’s total greenhouse gas inventory. The shape of the herd —
-        where it is, what it produces (beef vs. dairy), and how it changes —
-        shows up directly in EPA emissions data and in EU climate
-        commitments.
-      </p>
-      <p>
-        The CSO publishes the herd size every year as table{' '}
-        <code className="font-mono text-xs">AHA01</code> on PxStat. Try the
-        chart explorer to slice by county or by livestock type (dairy cows,
-        beef, sheep, pigs).
+        {t('cattleStory.p3')
+          .split('{code}')
+          .map((part, i, arr) => (
+            <span key={i}>
+              {part}
+              {i < arr.length - 1 && (
+                <code className="font-mono text-xs">AHA01</code>
+              )}
+            </span>
+          ))}
       </p>
     </article>
   );

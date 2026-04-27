@@ -1,7 +1,14 @@
 import { Link } from 'react-router-dom';
 import type { Story } from '../data/stories';
+import { useLocale } from '../i18n/LocaleContext';
+import { localizeStory } from '../i18n/stories';
 
 export default function StoryCard({ story }: { story: Story }) {
+  const { t, locale } = useLocale();
+  const meta = localizeStory(story, locale);
+  const tags = story.tags
+    .map((tag) => t(`storyTags.${tag}` as 'storyTags.census'))
+    .filter(Boolean);
   return (
     <Link
       to={`/stories/${story.slug}`}
@@ -9,15 +16,15 @@ export default function StoryCard({ story }: { story: Story }) {
     >
       <div className="text-3xl">{story.emoji}</div>
       <div className="font-display text-xl text-ink-900 leading-snug">
-        {story.title}
+        {meta.title}
       </div>
-      <p className="text-sm text-ink-700/85 leading-relaxed">
-        {story.subtitle}
-      </p>
+      <p className="text-sm text-ink-700/85 leading-relaxed">{meta.subtitle}</p>
       <div className="mt-auto flex items-center gap-2 text-xs text-ink-700/60">
-        <span>{story.estReadMin} min read</span>
+        <span>
+          {story.estReadMin} {t('stories.minRead')}
+        </span>
         <span>·</span>
-        <span>{story.tags.join(' · ')}</span>
+        <span>{tags.join(' · ')}</span>
       </div>
     </Link>
   );
